@@ -8,3 +8,15 @@ export const formSchema = z.object({
     message: 'Тайлбар доод тал нь 2 үсэгнээс бүрдэнэ!',
   }),
 });
+
+export const editFormSchema = formSchema.merge(
+  z.object({
+    id: z.number({
+      message: 'Id required',
+    }),
+  })
+);
+
+export const deleteFormSchema = z.object({
+  id: z.number({ message: 'Id required' }),
+});

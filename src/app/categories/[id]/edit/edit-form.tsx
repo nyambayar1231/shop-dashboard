@@ -16,33 +16,38 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { addCategory } from '../data/actions';
-import { formSchema } from '../data/schemas';
 import { useToast } from '@/hooks/use-toast';
 import { useAction } from 'next-safe-action/hooks';
 import { useRouter } from 'next/navigation';
+import { formSchema } from '../../data/schemas';
+import { SelectCategory } from '@/db/schema';
+import { editCategory } from '../../data/actions';
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function CreateCategoryForm() {
+export default function EditCategoryForm({
+  category,
+}: {
+  category: SelectCategory;
+}) {
   const { toast } = useToast();
   const router = useRouter();
-  const { executeAsync, isPending } = useAction(addCategory);
+  const { executeAsync, isPending } = useAction(editCategory);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-    },
+    defaultValues: category,
   });
 
   async function onSubmit(values: FormValues) {
-    const result = await executeAsync(values);
+    const result = await executeAsync({
+      ...values,
+      id: category.id,
+    });
     if (result?.data?.success) {
       toast({
         title: 'Амжилттай',
-        description: 'Ангилал амжилттай нэмэгдлээ',
+        description: 'Ангилал амжилттай засагдлаа',
       });
       form.reset();
       router.push('/categories');
@@ -50,7 +55,7 @@ export default function CreateCategoryForm() {
       toast({
         variant: 'destructive',
         title: 'Алдаа гарлаа',
-        description: 'Ангилал нэмэх үед алдаа гарлаа',
+        description: 'Ангилал засах үед алдаа гарлаа',
       });
     }
   }
@@ -58,7 +63,7 @@ export default function CreateCategoryForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Шинэ ангилал нэмэх</CardTitle>
+        <CardTitle>Ангилал засах</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
